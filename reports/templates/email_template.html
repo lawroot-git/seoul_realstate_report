@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서울 부동산 동향 일일 리포트</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f1f5f9;
+            color: #334155;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: #ffffff;
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+        .header p {
+            margin: 8px 0 0 0;
+            font-size: 14px;
+            color: #bfdbfe;
+        }
+        .content {
+            padding: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+        .section-title:first-of-type {
+            margin-top: 0;
+        }
+        .stats-grid {
+            display: table;
+            width: 100%;
+            border-spacing: 12px;
+            margin: -12px;
+        }
+        .stats-card {
+            display: table-cell;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            width: 33.33%;
+            vertical-align: top;
+            text-align: center;
+        }
+        .stats-card .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .stats-card .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-top: 6px;
+        }
+        .stats-card .desc {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .table-responsive {
+            width: 100%;
+            margin-top: 16px;
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+        th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background-color: #f8fafc;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 4px;
+        }
+        .badge-up {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+        .badge-down {
+            background-color: #dcfce7;
+            color: #22c55e;
+        }
+        .badge-stable {
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+        .chart-box {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .chart-box img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .footer {
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .footer p {
+            margin: 4px 0;
+        }
+        .info-box {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 4px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #1e3a8a;
+        }
+        .region-badge {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 9999px;
+            display: inline-block;
+        }
+        .apt-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .apt-link:hover {
+            text-decoration: underline;
+            color: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <div style="padding: 20px 0; background-color: #f1f5f9;">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <h1>서울 주요 7개구 부동산 동향 일일 리포트</h1>
+                <p>수집 일자: {{ report_date }} | 대상: 200세대 이상 & 준공 20년 미만 아파트 (공급면적 기준)</p>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <div class="info-box">
+                    <strong>💡 리포트 요약:</strong> 국토부 실거래가 공개시스템에서 전용 수집된 서울 주요 7개구의 신축 및 준신축 아파트 동향 데이터입니다. <strong>모든 통계는 공급면적(전용면적의 1.35배 기준) 평당가</strong>를 기준으로 제공됩니다.
+                </div>
+
+                <!-- 📊 주요 지표 요약 -->
+                <div class="stats-grid">
+                    <div class="stats-card">
+                        <div class="label">총 실거래 수</div>
+                        <div class="value">{{ total_tx_count }} 건</div>
+                        <div class="desc">(당월 누적 실거래량)</div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="label">평균 평당 매매가(공급)</div>
+                        <div class="value">{{ total_avg_pyung_price|round(0)|int }} 만원</div>
+                        <div class="desc">(대상 단지 평균 평당가)</div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="label">평균 전세가율</div>
+                        <div class="value">{{ total_avg_jeonse_rate|round(1) }} %</div>
+                        <div class="desc">(매매 대비 전세 비율)</div>
+                    </div>
+                </div>
+
+                <!-- 1. [요청 2] 구 별 공급 평당 평균 매매가 정리 -->
+                <div class="section-title">📍 구 별 평당 평균 매매가 정리 (공급면적 기준)</div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>지역구</th>
+                                <th>평균 매매가(공급평당)</th>
+                                <th>전월 대비 변동율</th>
+                                <th>매매 거래량</th>
+                                <th>평균 전세가(공급평당)</th>
+                                <th>전세가율</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for gu_name, data in gu_analysis.items() %}
+                            <tr>
+                                <td><strong>{{ gu_name }}</strong></td>
+                                <td>{{ (data['매매']['curr_pyung_avg'])|round(0)|int }} 만원</td>
+                                <td>
+                                    {% if data['매매']['pyung_change_pct'] > 0.05 %}
+                                    <span class="badge badge-up">▲ {{ data['매매']['pyung_change_pct']|round(1) }}%</span>
+                                    {% elif data['매매']['pyung_change_pct'] < -0.05 %}
+                                    <span class="badge badge-down">▼ {{ data['매매']['pyung_change_pct']|round(1) }}%</span>
+                                    {% else %}
+                                    <span class="badge badge-stable">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ data['매매']['curr_count'] }} 건</td>
+                                <td>{{ (data['전세']['curr_pyung_avg'])|round(0)|int }} 만원</td>
+                                <td>{{ data['jeonse_rate']|round(1) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 트렌드 차트 -->
+                <div style="display: table; width: 100%; margin-top: 16px;">
+                    <div style="display: table-cell; width: 50%; padding-right: 6px;">
+                        <div class="chart-box">
+                            <img src="cid:chart_price" alt="평균 매매가 비교">
+                        </div>
+                    </div>
+                    <div style="display: table-cell; width: 50%; padding-left: 6px;">
+                        <div class="chart-box">
+                            <img src="cid:chart_volume" alt="매매 거래량 비교">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. [요청 3] 각 구별 실거래 사례 리스트 나열 -->
+                <div class="section-title">📝 각 구별 아파트 실거래 세부 사례 목록</div>
+                <div class="info-box" style="background-color: #f8fafc; border-left-color: #64748b; color: #475569; margin-bottom: 12px;">
+                    <strong>ℹ️ 안내:</strong> 아파트 단지명을 클릭하시면 해당 단지의 <strong>네이버 부동산 매물 정보 페이지가 새 창</strong>으로 열립니다.
+                </div>
+                <div class="table-responsive" style="max-height: 550px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>구분 / 계약일</th>
+                                <th>지역 (법정동)</th>
+                                <th>아파트 단지명 (네이버 이동)</th>
+                                <th>공급면적 (평형)</th>
+                                <th>거래 금액 / 보증금</th>
+                                <th>층</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in all_transactions %}
+                            <tr>
+                                <td>
+                                    {% if tx.deal_type == '매매' %}
+                                    <span class="badge badge-up" style="background-color: #fee2e2; color: #ef4444; font-size: 11px;">매매</span>
+                                    {% elif tx.deal_type == '전세' %}
+                                    <span class="badge badge-down" style="background-color: #dcfce7; color: #22c55e; font-size: 11px;">전세</span>
+                                    {% else %}
+                                    <span class="badge badge-stable" style="background-color: #eff6ff; color: #3b82f6; font-size: 11px;">월세</span>
+                                    {% endif %}
+                                    <div style="font-size: 10px; color: #64748b; margin-top: 4px;">{{ tx.deal_year }}.{{ "%02d"|format(tx.deal_month|int) }}.{{ "%02d"|format(tx.deal_day|int) }}</div>
+                                </td>
+                                <td>
+                                    <span class="region-badge">{{ tx.gu_name }}</span>
+                                    <div style="font-size: 11px; color: #64748b; margin-top: 4px;">{{ tx.dong }}</div>
+                                </td>
+                                <td>
+                                    {% if tx.complex_no and tx.complex_no != 'UNKNOWN' %}
+                                    <a href="https://new.land.naver.com/complexes/{{ tx.complex_no }}" target="_blank" class="apt-link">{{ tx.apt_name }}</a>
+                                    {% else %}
+                                    <a href="https://new.land.naver.com/search?sk={{ tx.gu_name }} {{ tx.dong }} {{ tx.apt_name }}&rt=APT" target="_blank" class="apt-link">{{ tx.apt_name }}</a>
+                                    {% endif %}
+                                    {% if tx.build_year %}
+                                    <span style="font-size: 10px; color: #94a3b8; font-weight: normal;">({{ tx.build_year }}년 준공)</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ (tx.exclusive_area * 1.35)|round(1) }}㎡
+                                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">~{{ ((tx.exclusive_area * 1.35) / 3.3058)|round(1) }}공급평</div>
+                                </td>
+                                <td>
+                                    {% if tx.deal_type == '매매' %}
+                                        <strong>{{ (tx.deal_amount / 10000.0)|round(2) }} 억원</strong>
+                                        <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">공급평당 {{ (tx.deal_amount / ((tx.exclusive_area * 1.35) / 3.3058))|round(0)|int }}만</div>
+                                    {% elif tx.deal_type == '전세' %}
+                                        <strong>{{ (tx.deposit / 10000.0)|round(2) }} 억원</strong>
+                                        <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">공급평당 {{ (tx.deposit / ((tx.exclusive_area * 1.35) / 3.3058))|round(0)|int }}만</div>
+                                    {% else %}
+                                        <strong>보증 {{ (tx.deposit / 10000.0)|round(2) }}억</strong>
+                                        <div style="font-size: 11px; color: #3b82f6; margin-top: 2px; font-weight: bold;">월세 {{ tx.monthly_rent }}만원</div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ tx.floor }}층</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #94a3b8; padding: 30px;">당월 수집된 조건 부합 실거래 내역이 없습니다.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 3. 면적별 분석 -->
+                <div class="section-title">📐 공급 면적대별 매매 평균 요약</div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>공급면적 구분</th>
+                                <th>평균 매매 거래가</th>
+                                <th>평균 공급평당가</th>
+                                <th>거래 비율 (건수)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for seg_name, seg_data in area_analysis.items() %}
+                            <tr>
+                                <td><strong>{{ seg_name.replace('전용', '공급') }}</strong></td>
+                                <td>{{ (seg_data['avg_price']/10000.0)|round(1) }} 억원</td>
+                                <td>{{ seg_data['avg_pyung_price']|round(0)|int }} 만원</td>
+                                <td>{{ seg_data['count'] }} 건</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>본 메일은 수신자(bbokigun@gmail.com)를 위한 실거래가 일일 보고서입니다.</p>
+                <p>자료 출처: 국토교통부 실거래가 공개시스템</p>
+                <p>© 2026 서울 부동산 동향 분석 시스템. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+# Python virtual environment
+venv/
+.venv/
+ENV/
+env/
+
+# Python compiled bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Local configuration and environment variables
+.env
+.env.local
+.env.*.local
+
+# Project data and logs
+data/
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
+
+# IDE settings
+.idea/
+.vscode/
+*.swp
+*.swo

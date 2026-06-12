@@ -3,7 +3,7 @@ name: Seoul Real Estate Daily Report
 on:
   schedule:
     # 09:00 KST is 00:00 UTC (9 hours difference)
-    - cron: '0 0 * * *'
+    - cron: '17 0 * * *'
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:

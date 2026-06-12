@@ -143,16 +143,21 @@ def main():
             'chart_volume': chart_volume_b64
         }
         
-        # 8. Generate HTML Report
-        logger.info("Rendering HTML report...")
+        # 8. Generate HTML Reports (Detailed for attachment, Summary for email body)
+        logger.info("Rendering HTML reports...")
         report_gen = ReportGenerator()
-        html_content = report_gen.generate_html(
+        html_detailed = report_gen.generate_html(
+            gu_analysis=gu_analysis,
+            area_analysis=area_analysis,
+            all_transactions=all_transactions_list
+        )
+        html_summary = report_gen.generate_summary_html(
             gu_analysis=gu_analysis,
             area_analysis=area_analysis,
             all_transactions=all_transactions_list
         )
         
-        # 9. Save HTML Report to History
+        # 9. Save Detailed HTML Report to History
         history_dir = DATA_DIR / "history"
         history_dir.mkdir(exist_ok=True)
         
@@ -160,16 +165,17 @@ def main():
         report_file_path = history_dir / f"report_{today_str}.html"
         
         with open(report_file_path, "w", encoding="utf-8") as f:
-            f.write(html_content)
-        logger.info(f"✅ HTML report saved to history: {report_file_path}")
+            f.write(html_detailed)
+        logger.info(f"✅ Detailed HTML report saved to history: {report_file_path}")
         
         # 10. Send Email
         logger.info("Sending report email...")
         sender = EmailSender()
         send_success = sender.send_report(
-            html_content=html_content,
+            html_content=html_summary,
             charts=charts,
-            subject=f"서울 주요 7개구 부동산 실거래 동향 일일 보고서 ({curr_ym[:4]}년 {curr_ym[4:]}월 기준)"
+            subject=f"서울 주요 7개구 부동산 실거래 동향 일일 보고서 ({curr_ym[:4]}년 {curr_ym[4:]}월 기준)",
+            attachment_path=str(report_file_path)
         )
         
         if send_success:

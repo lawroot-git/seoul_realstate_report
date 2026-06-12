@@ -55,7 +55,7 @@ class TrendChartGenerator:
         """
         try:
             regions = list(mom_analysis.keys())
-            sale_prices = [mom_analysis[reg]['매매']['curr_pyung_avg'] for reg in regions] # Supply area average pyung price in 만원
+            sale_prices = [mom_analysis[reg]['매매']['curr_pyung_avg'] for reg in regions] # Exclusive area average pyung price in 만원
             
             # Sort by price desc
             data = sorted(zip(regions, sale_prices), key=lambda x: -x[1])
@@ -69,8 +69,8 @@ class TrendChartGenerator:
             bars = ax.bar(sorted_regions, sorted_prices, color=colors[:len(sorted_regions)], width=0.6, edgecolor='none')
             
             # Formatting
-            ax.set_title("서울 주요 구별 아파트 평균 공급평당가 (만원)", fontsize=14, fontweight='bold', pad=15, color='#1f2937')
-            ax.set_ylabel("평균 공급평당가 (만원)", fontsize=11, labelpad=10, color='#4b5563')
+            ax.set_title("서울 주요 구별 아파트 평균 전용평당가 (만원)", fontsize=14, fontweight='bold', pad=15, color='#1f2937')
+            ax.set_ylabel("평균 전용평당가 (만원)", fontsize=11, labelpad=10, color='#4b5563')
             ax.grid(axis='y', linestyle='--', alpha=0.5)
             
             # Remove top/right spines

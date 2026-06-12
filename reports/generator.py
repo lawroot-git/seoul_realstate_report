@@ -62,19 +62,32 @@ class ReportGenerator:
                 "11590": "동작구",
                 "11740": "강동구",
             }
-            for tx in all_transactions:
-                tx['gu_name'] = lawd_to_gu.get(tx.get('lawd_cd', ''), '기타')
-
-            # Sort transactions: Sales first, then descending by date
+            
+            # Sort transactions first: Date descending
             sorted_txs = sorted(
                 all_transactions,
                 key=lambda x: (
-                    0 if x.get('deal_type') == '매매' else 1,
                     -int(x.get('deal_year', 0)),
                     -int(x.get('deal_month', 0)),
                     -int(x.get('deal_day', 0))
                 )
             )
+
+            # Group transactions by gu_name and deal_type
+            grouped_txs = {}
+            for gu_name in lawd_to_gu.values():
+                grouped_txs[gu_name] = {
+                    '매매': [],
+                    '전세': [],
+                    '월세': []
+                }
+            
+            for tx in sorted_txs:
+                gu_name = lawd_to_gu.get(tx.get('lawd_cd', ''), '기타')
+                tx['gu_name'] = gu_name
+                dtype = tx.get('deal_type')
+                if gu_name in grouped_txs and dtype in ['매매', '전세', '월세']:
+                    grouped_txs[gu_name][dtype].append(tx)
 
             # 3. Render template
             html_content = template.render(
@@ -82,6 +95,7 @@ class ReportGenerator:
                 gu_analysis=gu_analysis,
                 area_analysis=area_analysis,
                 all_transactions=sorted_txs,
+                grouped_transactions=grouped_txs,
                 total_tx_count=total_tx_count,
                 total_avg_pyung_price=total_avg_pyung_price,
                 total_avg_jeonse_rate=total_avg_jeonse_rate
@@ -91,4 +105,49 @@ class ReportGenerator:
             return html_content
         except Exception as e:
             logger.error(f"Error generating HTML report: {e}")
+            raise e
+
+    def generate_summary_html(
+        self,
+        gu_analysis: Dict[str, Any],
+        area_analysis: Dict[str, Any],
+        all_transactions: List[Dict[str, Any]],
+        report_date: str = None
+    ) -> str:
+        """Render the lightweight summary email template and return the HTML string"""
+        try:
+            if not report_date:
+                report_date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+            template = self.env.get_template("email_summary_template.html")
+
+            total_tx_count = 0
+            total_sum_pyung_price = 0.0
+            total_gu_with_pyung = 0
+            jeonse_rates = []
+
+            for gu_name, data in gu_analysis.items():
+                total_tx_count += data.get('매매', {}).get('curr_count', 0)
+                pyung_price = data.get('매매', {}).get('curr_pyung_avg', 0)
+                if pyung_price > 0:
+                    total_sum_pyung_price += pyung_price
+                    total_gu_with_pyung += 1
+                j_rate = data.get('jeonse_rate', 0.0)
+                if j_rate > 0:
+                    jeonse_rates.append(j_rate)
+
+            total_avg_pyung_price = (total_sum_pyung_price / total_gu_with_pyung) if total_gu_with_pyung > 0 else 0.0
+            total_avg_jeonse_rate = (sum(jeonse_rates) / len(jeonse_rates)) if jeonse_rates else 0.0
+
+            html_content = template.render(
+                report_date=report_date,
+                gu_analysis=gu_analysis,
+                area_analysis=area_analysis,
+                total_tx_count=total_tx_count,
+                total_avg_pyung_price=total_avg_pyung_price,
+                total_avg_jeonse_rate=total_avg_jeonse_rate
+            )
+            return html_content
+        except Exception as e:
+            logger.error(f"Error generating summary HTML report: {e}")
             raise e

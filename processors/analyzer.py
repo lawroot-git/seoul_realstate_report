@@ -7,11 +7,10 @@ from config.settings import TARGET_REGIONS
 logger = logging.getLogger(__name__)
 
 def calculate_pyung_price(amount: float, exclusive_area: float) -> float:
-    """Calculate price per 3.3㎡ of SUPPLY area (평당가 in 만원) by converting exclusive area using a 1.35x average multiplier (74% efficiency ratio)"""
+    """Calculate price per 3.3㎡ of EXCLUSIVE area (전용면적 기준 평당가 in 만원)"""
     if not exclusive_area or exclusive_area <= 0:
         return 0.0
-    supply_area = exclusive_area * 1.35  # Convert exclusive area to supply area
-    pyung = supply_area / 3.3058
+    pyung = exclusive_area / 3.3058
     return amount / pyung
 
 class RealEstateAnalyzer:

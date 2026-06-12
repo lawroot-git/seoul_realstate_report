@@ -119,25 +119,6 @@
         tr:hover {
             background-color: #f8fafc;
         }
-        .badge {
-            display: inline-block;
-            padding: 2px 6px;
-            font-size: 11px;
-            font-weight: 600;
-            border-radius: 4px;
-        }
-        .badge-up {
-            background-color: #fee2e2;
-            color: #ef4444;
-        }
-        .badge-down {
-            background-color: #dcfce7;
-            color: #22c55e;
-        }
-        .badge-stable {
-            background-color: #f1f5f9;
-            color: #64748b;
-        }
         .chart-box {
             text-align: center;
             margin: 20px 0;
@@ -168,57 +149,6 @@
             font-size: 13px;
             color: #1e3a8a;
         }
-        .region-badge {
-            background-color: #e0f2fe;
-            color: #0369a1;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 9999px;
-            display: inline-block;
-        }
-        .apt-link {
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .apt-link:hover {
-            text-decoration: underline;
-            color: #1d4ed8;
-        }
-        .category-header {
-            background-color: #f1f5f9;
-            font-weight: bold;
-            font-size: 13px;
-            color: #334155;
-            padding: 8px 16px;
-            border-left: 4px solid #475569;
-            margin-top: 15px;
-            margin-bottom: 8px;
-        }
-        .gu-container {
-            margin-bottom: 30px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 16px;
-            background-color: #ffffff;
-        }
-        .gu-header {
-            font-size: 16px;
-            font-weight: bold;
-            color: #1e3a8a;
-            border-bottom: 2px solid #3b82f6;
-            padding-bottom: 6px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .gu-summary-badge {
-            font-size: 12px;
-            font-weight: normal;
-            color: #475569;
-        }
     </style>
 </head>
 <body>
@@ -226,14 +156,14 @@
         <div class="container">
             <!-- Header -->
             <div class="header">
-                <h1>서울 주요 7개구 부동산 동향 일일 리포트</h1>
+                <h1>서울 주요 7개구 부동산 동향 일일 요약 리포트</h1>
                 <p>수집 일자: {{ report_date }} | 대상: 200세대 이상 & 준공 20년 미만 아파트 (전용면적 기준)</p>
             </div>
 
             <!-- Content -->
             <div class="content">
                 <div class="info-box">
-                    <strong>💡 리포트 요약:</strong> 국토부 실거래가 공개시스템에서 전용 수집된 서울 주요 7개구의 신축 및 준신축 아파트 동향 데이터입니다. <strong>모든 통계는 전용면적 기준</strong>으로 제공됩니다.
+                    <strong>💡 안내:</strong> 본 이메일은 간략한 요약본과 차트만 포함하고 있습니다. 상세 실거래 사례 목록은 <strong>본 메일에 첨부된 HTML 보고서 파일 (seoul_realestate_report_{{ report_date.replace('-', '') }}.html)</strong>을 다운로드하여 확인해 주시기 바랍니다.
                 </div>
 
                 <!-- 📊 주요 지표 요약 -->
@@ -285,7 +215,7 @@
                 </div>
 
                 <!-- 트렌드 차트 -->
-                <div style="display: table; width: 100%; margin-top: 16px; margin-bottom: 24px;">
+                <div style="display: table; width: 100%; margin-top: 16px;">
                     <div style="display: table-cell; width: 50%; padding-right: 6px;">
                         <div class="chart-box">
                             <img src="cid:chart_price" alt="평균 매매가 비교">
@@ -297,90 +227,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- 2. 각 구별 아파트 실거래 세부 사례 목록 -->
-                <div class="section-title">📝 각 구별 아파트 실거래 세부 사례 목록 (구별 / 거래유형별)</div>
-                <div class="info-box" style="background-color: #f8fafc; border-left-color: #64748b; color: #475569; margin-bottom: 20px;">
-                    <strong>ℹ️ 안내:</strong> 아파트 단지명을 클릭하시면 해당 단지의 <strong>네이버 부동산 매물 정보 페이지가 새 창</strong>으로 열립니다.
-                </div>
-
-                {% for gu_name, categories in grouped_transactions.items() %}
-                <div class="gu-container">
-                    <div class="gu-header">
-                        <span>📍 {{ gu_name }}</span>
-                        <span class="gu-summary-badge">
-                            매매 {{ categories['매매']|length }}건 | 전세 {{ categories['전세']|length }}건 | 월세 {{ categories['월세']|length }}건
-                        </span>
-                    </div>
-
-                    {% for cat_name in ['매매', '전세', '월세'] %}
-                    {% set tx_list = categories[cat_name] %}
-                    <div class="category-header">
-                        {{ cat_name }} ({{ tx_list|length }}건)
-                    </div>
-                    {% if tx_list|length > 0 %}
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 12%;">계약일</th>
-                                    <th style="width: 18%;">법정동</th>
-                                    <th style="width: 32%;">아파트 단지명 (네이버 이동)</th>
-                                    <th style="width: 18%;">전용면적 (평형)</th>
-                                    <th style="width: 20%;">거래금액 / 보증금</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for tx in tx_list %}
-                                <tr>
-                                    <td>
-                                        <div style="font-size: 11px; color: #64748b;">
-                                            {{ "%02d"|format(tx.deal_month|int) }}.{{ "%02d"|format(tx.deal_day|int) }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="region-badge" style="background-color: #f1f5f9; color: #475569; font-weight: normal;">{{ tx.dong }}</span>
-                                    </td>
-                                    <td>
-                                        {% if tx.complex_no and tx.complex_no != 'UNKNOWN' %}
-                                        <a href="https://new.land.naver.com/complexes/{{ tx.complex_no }}" target="_blank" class="apt-link">{{ tx.apt_name }}</a>
-                                        {% else %}
-                                        <a href="https://new.land.naver.com/search?sk={{ tx.gu_name }} {{ tx.dong }} {{ tx.apt_name }}&rt=APT" target="_blank" class="apt-link">{{ tx.apt_name }}</a>
-                                        {% endif %}
-                                        {% if tx.build_year %}
-                                        <span style="font-size: 10px; color: #94a3b8; font-weight: normal;">({{ tx.build_year }}년)</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {{ tx.exclusive_area|round(1) }}㎡
-                                        <div style="font-size: 10px; color: #64748b; margin-top: 2px;">~{{ (tx.exclusive_area / 3.3058)|round(1) }}평</div>
-                                    </td>
-                                    <td>
-                                        {% if tx.deal_type == '매매' %}
-                                            <strong>{{ (tx.deal_amount / 10000.0)|round(2) }} 억원</strong>
-                                            <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">전용평당 {{ (tx.deal_amount / (tx.exclusive_area / 3.3058))|round(0)|int }}만</div>
-                                        {% elif tx.deal_type == '전세' %}
-                                            <strong>{{ (tx.deposit / 10000.0)|round(2) }} 억원</strong>
-                                            <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">전용평당 {{ (tx.deposit / (tx.exclusive_area / 3.3058))|round(0)|int }}만</div>
-                                        {% else %}
-                                            <strong>보증 {{ (tx.deposit / 10000.0)|round(2) }}억</strong>
-                                            <div style="font-size: 11px; color: #3b82f6; margin-top: 2px; font-weight: bold;">월세 {{ tx.monthly_rent }}만</div>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div style="text-align: center; color: #94a3b8; padding: 15px; font-size: 12px; background-color: #f8fafc; border: 1px dashed #e2e8f0; border-radius: 8px; margin-bottom: 15px;">
-                        해당 거래 유형의 실거래 내역이 없습니다.
-                    </div>
-                    {% endif %}
-                    {% endfor %}
-                </div>
-                {% endfor %}
-
             </div>
 
             <!-- Footer -->
